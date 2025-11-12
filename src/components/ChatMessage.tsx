@@ -10,13 +10,13 @@ export const ChatMessage = ({ message, isBot, isTyping }: ChatMessageProps) => {
   return (
     <div
       className={cn(
-        "flex w-full animate-fade-in",
-        isBot ? "justify-start" : "justify-end"
+        "flex w-full",
+        isBot ? "justify-start animate-slide-in-left" : "justify-end animate-slide-in-right"
       )}
     >
       <div
         className={cn(
-          "max-w-[80%] rounded-2xl px-6 py-4 shadow-soft transition-all",
+          "max-w-[80%] rounded-2xl px-6 py-4 shadow-soft transition-all duration-300 hover:shadow-md hover:scale-[1.02]",
           isBot
             ? "bg-card text-card-foreground"
             : "bg-gradient-primary text-primary-foreground"
