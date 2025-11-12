@@ -52,12 +52,12 @@ export const ChatInterface = () => {
   }, [messages, isTyping]);
 
   const questions = [
-    "Legal! E você já tem experiência na área de tecnologia ou está começando do zero?",
-    "Entendi! Quantas horas por semana você consegue dedicar aos estudos?",
-    "Perfeito! No seu dia a dia, você prefere lidar mais com pessoas, dados ou código?",
-    "Ótimo! Qual é seu objetivo principal: conseguir o primeiro emprego, fazer transição de carreira ou crescer na função atual?",
-    "Show! Quais assuntos ou tecnologias mais despertam seu interesse? Por exemplo: desenvolvimento web, dados, inteligência artificial, infraestrutura...",
-    "Última pergunta: você tem alguma experiência prévia (mesmo que não seja em tech) que gostaria de aproveitar nessa nova jornada?",
+    "Que legal! Isso já diz muito sobre você. Agora me conta: você já tem experiência na área de tecnologia ou está começando do zero?",
+    "Entendi perfeitamente! Isso é um ponto importante para personalizar sua jornada. Quantas horas por semana você consegue dedicar aos estudos?",
+    "Perfeito! Vejo que você tem clareza sobre sua disponibilidade. No seu dia a dia, você prefere lidar mais com pessoas, dados ou código?",
+    "Ótimo! Essa informação é super valiosa. Agora me diz: qual é seu objetivo principal - conseguir o primeiro emprego, fazer transição de carreira ou crescer na função atual?",
+    "Show! Isso me ajuda muito a direcionar as sugestões. Quais assuntos ou tecnologias mais despertam seu interesse? Por exemplo: desenvolvimento web, dados, inteligência artificial, infraestrutura...",
+    "Bacana! Estamos quase lá. Última pergunta: você tem alguma experiência prévia (mesmo que não seja em tech) que gostaria de aproveitar nessa nova jornada?",
   ];
 
   const analyzeCareers = (userAnswers: string[]): Career[] => {
