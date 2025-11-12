@@ -36,7 +36,7 @@ export const CareerCard = ({
 }: CareerCardProps) => {
   return (
     <Card
-      className={`bg-gradient-to-br ${rankColors[rank]} border-2 p-6 shadow-card animate-slide-up`}
+      className={`bg-gradient-to-br ${rankColors[rank]} border-2 p-6 shadow-card animate-scale-fade-in transition-all duration-300 hover:shadow-xl hover:scale-[1.02]`}
     >
       <div className="space-y-4">
         <div className="flex items-start justify-between">
