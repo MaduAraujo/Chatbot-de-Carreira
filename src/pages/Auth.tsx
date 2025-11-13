@@ -75,13 +75,8 @@ const Auth = () => {
   return (
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
       <Card className="w-full max-w-md">
-        <CardHeader>
+        <CardHeader className="text-center">
           <CardTitle>{isLogin ? "Entrar" : "Criar conta"}</CardTitle>
-          <CardDescription>
-            {isLogin 
-              ? "Entre para acessar seu histórico de conversas" 
-              : "Crie uma conta para salvar suas conversas"}
-          </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
