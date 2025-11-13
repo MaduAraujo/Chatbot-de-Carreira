@@ -313,16 +313,11 @@ Preparado para começar sua jornada? 🚀`,
       {/* Header */}
       <div className="border-b bg-card px-6 py-4 shadow-soft">
         <div className="mx-auto flex max-w-4xl items-center justify-between gap-3">
-          <div className="flex items-center gap-3">
-            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-primary">
-              <Sparkles className="h-6 w-6 text-white" />
-            </div>
-            <div>
-              <h1 className="text-xl font-bold text-foreground">Orientador de Carreira Tech</h1>
-              <p className="text-sm text-muted-foreground">
-                {user ? "Suas conversas estão sendo salvas" : "Descubra sua carreira ideal em tecnologia"}
-              </p>
-            </div>
+          <div>
+            <h1 className="text-xl font-bold text-foreground">Orientador de Carreira Tech</h1>
+            <p className="text-sm text-muted-foreground">
+              {user ? "Suas conversas estão sendo salvas" : "Descubra sua carreira ideal em tecnologia"}
+            </p>
           </div>
           <div>
             {user ? (
