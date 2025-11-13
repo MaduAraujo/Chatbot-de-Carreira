@@ -320,7 +320,7 @@ Preparado para começar sua jornada? 🚀`,
             <div>
               <h1 className="text-xl font-bold text-foreground">Orientador de Carreira Tech</h1>
               <p className="text-sm text-muted-foreground">
-                {user ? "Suas conversas estão sendo salvas" : "Faça login para salvar o histórico"}
+                {user ? "Suas conversas estão sendo salvas" : "Descubra sua carreira ideal em tecnologia"}
               </p>
             </div>
           </div>
