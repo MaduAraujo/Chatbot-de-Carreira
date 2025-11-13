@@ -42,10 +42,13 @@ export const ChatInterface = () => {
   const [questionCount, setQuestionCount] = useState(0);
   const [answers, setAnswers] = useState<string[]>([]);
   const [careers, setCareers] = useState<Career[] | null>(null);
-  const [phase, setPhase] = useState<"interview" | "careers" | "handoff">("interview");
+  const [phase, setPhase] = useState<"interview" | "careers" | "handoff" | "roadmap">("interview");
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [conversationId, setConversationId] = useState<string | null>(null);
+  const [selectedCareer, setSelectedCareer] = useState<Career | null>(null);
+  const [roadmap, setRoadmap] = useState<string>("");
+  const [isGeneratingRoadmap, setIsGeneratingRoadmap] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -277,35 +280,88 @@ export const ChatInterface = () => {
   };
 
   const handleCareerSelection = async (career: Career) => {
+    setSelectedCareer(career);
+    setCareers(null);
+    setIsGeneratingRoadmap(true);
+    
     const botMessage: Message = {
       id: Date.now().toString(),
-      text: `Excelente escolha! ${career.title} é uma ótima carreira para você. 
+      text: `Olá! Recebi suas informações do entrevistador.
 
-Vou te passar para meu colega especialista em ${career.title}. Ele vai montar todo o plano de estudos personalizado para você!
+Vejo que você escolheu ${career.title} e tem ${answers[2]} disponíveis para estudar. Perfeito!
 
-Em breve você terá:
-✅ Roteiro completo de estudos
-✅ Recursos e materiais recomendados
-✅ Timeline realista de aprendizado
-✅ Dicas de projetos práticos
-
-Preparado para começar sua jornada? 🚀`,
+Vou montar agora seu plano completo personalizado... ⏳`,
       isBot: true,
     };
 
     setMessages((prev) => [...prev, botMessage]);
-    setPhase("handoff");
-    setCareers(null);
     
     // Save bot message if logged in
     if (user) {
       await saveMessage("bot", botMessage.text);
     }
 
-    toast({
-      title: "Carreira selecionada!",
-      description: `Você escolheu ${career.title}. Prepare-se para sua jornada!`,
-    });
+    try {
+      const { data, error } = await supabase.functions.invoke('generate-roadmap', {
+        body: {
+          carreira: career.title,
+          horas: answers[2] || "não especificado",
+          experiencia: answers[1] || "não especificado",
+          objetivo: answers[4] || "não especificado",
+          preferencia: answers[3] || "não especificado",
+          interesses: answers[5] || "não especificado"
+        }
+      });
+
+      if (error) throw error;
+      
+      if (data?.error) {
+        throw new Error(data.error);
+      }
+
+      setRoadmap(data.roadmap);
+      setPhase("roadmap");
+      
+      const roadmapMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        text: data.roadmap + "\n\n✨ Seu plano está pronto!\n\nLembre-se: o mais importante é a constância, não a velocidade. Comece pela Semana 1 e vá no seu ritmo.\n\nTem alguma dúvida sobre o plano? Posso detalhar alguma parte específica?",
+        isBot: true,
+      };
+      
+      setMessages((prev) => [...prev, roadmapMessage]);
+      
+      // Save roadmap message if logged in
+      if (user) {
+        await saveMessage("bot", roadmapMessage.text);
+      }
+
+      toast({
+        title: "Roadmap gerado!",
+        description: "Seu plano de estudos personalizado está pronto.",
+      });
+      
+    } catch (error) {
+      console.error("Error generating roadmap:", error);
+      
+      const errorMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        text: "Desculpe, houve um erro ao gerar seu roadmap. Por favor, tente novamente em alguns instantes.",
+        isBot: true,
+      };
+      
+      setMessages((prev) => [...prev, errorMessage]);
+      
+      toast({
+        title: "Erro",
+        description: error instanceof Error ? error.message : "Não foi possível gerar o roadmap.",
+        variant: "destructive",
+      });
+      
+      setPhase("careers");
+      setCareers([career]);
+    } finally {
+      setIsGeneratingRoadmap(false);
+    }
   };
 
   return (
@@ -341,7 +397,7 @@ Preparado para começar sua jornada? 🚀`,
           {messages.map((message) => (
             <ChatMessage key={message.id} message={message.text} isBot={message.isBot} />
           ))}
-          {isTyping && <ChatMessage message="" isBot={true} isTyping={true} />}
+          {(isTyping || isGeneratingRoadmap) && <ChatMessage message="" isBot={true} isTyping={true} />}
           
           {careers && phase === "careers" && (
             <div className="space-y-6 animate-fade-in">
@@ -367,7 +423,7 @@ Preparado para começar sua jornada? 🚀`,
       </div>
 
       {/* Input */}
-      {phase !== "careers" && (
+      {(phase === "interview" || phase === "roadmap") && (
         <div className="border-t bg-card px-4 py-4 shadow-soft">
           <div className="mx-auto flex max-w-4xl gap-2">
             <Input
