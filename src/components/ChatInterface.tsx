@@ -143,62 +143,28 @@ export const ChatInterface = () => {
     "Bacana! Estamos quase lá. Última pergunta: você tem alguma experiência prévia (mesmo que não seja em tech) que gostaria de aproveitar nessa nova jornada?",
   ];
 
-  const analyzeCareers = (userAnswers: string[]): Career[] => {
-    // Análise simplificada baseada nas respostas
-    const [interest, experience, hours, preference, goal, topics, previous] = userAnswers;
+  const analyzeCareers = async (userAnswers: string[]): Promise<Career[]> => {
+    try {
+      const { data, error } = await supabase.functions.invoke('analyze-careers', {
+        body: { answers: userAnswers }
+      });
 
-    const allCareers = [
-      {
-        rank: 1 as const,
-        title: "Desenvolvedor Frontend",
-        score: 18,
-        reason: "Seu interesse em criar produtos e preferência por trabalhar com código combinam perfeitamente com desenvolvimento frontend. A área tem alta demanda e permite evolução rápida.",
-        advantages: [
-          "Alta demanda no mercado",
-          "Resultados visuais imediatos",
-          "Comunidade ativa e muitos recursos de aprendizado",
-        ],
-        challenges: [
-          "Necessidade de atualização constante",
-          "Muitas ferramentas e frameworks para aprender",
-        ],
-        market: "Excelente demanda em todas as regiões. Salários variam de R$3k-R$15k+ dependendo da experiência e localização.",
-      },
-      {
-        rank: 2 as const,
-        title: "Analista de Dados",
-        score: 16,
-        reason: "Sua afinidade com resolução de problemas e sistemas combina com análise de dados. É uma carreira em crescimento com ótimas oportunidades.",
-        advantages: [
-          "Mercado em expansão",
-          "Trabalho estratégico e analítico",
-          "Boa remuneração desde o início",
-        ],
-        challenges: [
-          "Curva de aprendizado em estatística",
-          "Necessidade de conhecimento em várias ferramentas",
-        ],
-        market: "Crescimento acelerado. Remuneração inicial de R$4k-R$12k, variando por região e setor.",
-      },
-      {
-        rank: 3 as const,
-        title: "Product Manager",
-        score: 14,
-        reason: "Sua experiência prévia e interesse em produtos podem ser bem aproveitados. É uma carreira que une tecnologia e negócios.",
-        advantages: [
-          "Visão estratégica do produto",
-          "Trabalho colaborativo com várias áreas",
-          "Excelente para quem gosta de pessoas",
-        ],
-        challenges: [
-          "Requer experiência prévia geralmente",
-          "Necessidade de conhecimento técnico e de negócios",
-        ],
-        market: "Boa demanda em empresas de tecnologia. Salários de R$6k-R$20k+ para níveis júnior a pleno.",
-      },
-    ];
+      if (error) throw error;
+      
+      if (data?.error) {
+        throw new Error(data.error);
+      }
 
-    return allCareers;
+      return data.careers;
+    } catch (error) {
+      console.error("Error analyzing careers:", error);
+      toast({
+        title: "Erro",
+        description: "Não foi possível analisar as carreiras. Tente novamente.",
+        variant: "destructive",
+      });
+      throw error;
+    }
   };
 
   const handleSendMessage = async () => {
@@ -257,10 +223,14 @@ export const ChatInterface = () => {
           }
 
           // Analisar e apresentar carreiras
-          setTimeout(() => {
-            const analyzedCareers = analyzeCareers(newAnswers);
-            setCareers(analyzedCareers);
-            setPhase("careers");
+          setTimeout(async () => {
+            try {
+              const analyzedCareers = await analyzeCareers(newAnswers);
+              setCareers(analyzedCareers);
+              setPhase("careers");
+            } catch (error) {
+              console.error("Failed to analyze careers:", error);
+            }
           }, 2000);
         }
       } else if (phase === "handoff") {
@@ -281,16 +251,11 @@ export const ChatInterface = () => {
 
   const handleCareerSelection = async (career: Career) => {
     setSelectedCareer(career);
-    setCareers(null);
     setIsGeneratingRoadmap(true);
     
     const botMessage: Message = {
       id: Date.now().toString(),
-      text: `Olá! Recebi suas informações do entrevistador.
-
-Vejo que você escolheu ${career.title} e tem ${answers[2]} disponíveis para estudar. Perfeito!
-
-Vou montar agora seu plano completo personalizado... ⏳`,
+      text: `Perfeito! Vou montar agora seu plano completo personalizado para ${career.title}... ⏳`,
       isBot: true,
     };
 
@@ -372,7 +337,7 @@ Vou montar agora seu plano completo personalizado... ⏳`,
           <div>
             <h1 className="text-xl font-bold text-foreground">Orientador de Carreira Tech</h1>
             <p className="text-sm text-muted-foreground">
-              {user ? "Suas conversas estão sendo salvas" : "Descubra sua carreira ideal em tecnologia"}
+              Descubra sua carreira ideal em tecnologia
             </p>
           </div>
           <div>

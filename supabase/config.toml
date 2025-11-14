@@ -1,1 +1,7 @@
 project_id = "udogyhruldogqadezevj"
+
+[functions.analyze-careers]
+verify_jwt = false
+
+[functions.generate-roadmap]
+verify_jwt = false
