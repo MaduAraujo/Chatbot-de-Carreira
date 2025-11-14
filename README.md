@@ -1,73 +1,50 @@
-# Welcome to your Lovable project
+# Chatbot de Carreira em Tecnologia 🤖
 
-## Project info
+![Badge de Plataforma](https://img.shields.io/badge/Built_with-Lovable-E11D48?style=for-the-badge)
+![Badge de Tecnologia Principal](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)
+![Badge de Linguagem](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white)
+![Badge de Estilização](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)
+![Badge de Ferramenta](https://img.shields.io/badge/Vite-646CFF?style=for-the-badge&logo=vite&logoColor=white)
 
-**URL**: https://lovable.dev/projects/ba7b8c53-c497-422b-9bf4-1e26bf776019
+## Sobre o Projeto
 
-## How can I edit this code?
+Muitas pessoas interessadas em ingressar na área de tecnologia se sentem perdidas com a vasta quantidade de opções de carreira disponíveis. O **Chatbot de Carreira** visa solucionar esse problema atuando como um mentor virtual, ajudando usuários a descobrir a melhor carreira em tecnologia através de uma entrevista personalizada e interativa.
 
-There are several ways of editing your application.
+### Funcionalidades Principais
 
-**Use Lovable**
+* **Entrevista Guiada:** Conduz uma conversa fluida para coletar informações sobre o usuário.
+* **Análise de Perfil:** Utiliza IA para processar as respostas.
+* **Recomendação de Carreira:** Sugere carreiras em tecnologia personalizadas.
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/ba7b8c53-c497-422b-9bf4-1e26bf776019) and start prompting.
+## Como Executar o Projeto Localmente
 
-Changes made via Lovable will be committed automatically to this repo.
+Para rodar este projeto em seu ambiente de desenvolvimento local, siga os passos abaixo.
 
-**Use your preferred IDE**
+### Pré-requisitos
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+* [Node.js](https://nodejs.org/en)
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+### Passos de Instalação
 
-Follow these steps:
+1.  **Clone o repositório:**
+    ```sh
+    git clone https://github.com/MaduAraujo/Chatbot-de-Carreira.git
+    ```
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+2.  **Navegue até o diretório do projeto:**
+    ```sh
+    cd Chatbot-de-Carreira
+    ```
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+3.  **Instale as dependências:**
+    ```sh
+    npm install
+    ```
 
-# Step 3: Install the necessary dependencies.
-npm i
+4.  **Execute o servidor de desenvolvimento:**
+    ```sh
+    npm run dev
+    ```
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
-```
-
-**Edit a file directly in GitHub**
-
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
-
-**Use GitHub Codespaces**
-
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
-
-## What technologies are used for this project?
-
-This project is built with:
-
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/ba7b8c53-c497-422b-9bf4-1e26bf776019) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+5.  **Abra no navegador:**
+    O projeto estará disponível em `http://localhost:5173` (ou outra porta indicada no terminal).
