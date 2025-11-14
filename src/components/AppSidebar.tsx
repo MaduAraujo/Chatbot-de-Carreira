@@ -1,4 +1,4 @@
-import { MessageSquare, Plus } from "lucide-react";
+import { MessageSquare, Plus, Trash2 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { Button } from "@/components/ui/button";
 import {
@@ -25,6 +25,7 @@ interface AppSidebarProps {
   currentConversationId: string | null;
   onNewConversation: () => void;
   onSelectConversation: (id: string) => void;
+  onDeleteConversation: (id: string) => void;
 }
 
 export function AppSidebar({
@@ -32,6 +33,7 @@ export function AppSidebar({
   currentConversationId,
   onNewConversation,
   onSelectConversation,
+  onDeleteConversation,
 }: AppSidebarProps) {
   const { state } = useSidebar();
   const isCollapsed = state === "collapsed";
@@ -68,17 +70,32 @@ export function AppSidebar({
                 const isActive = conversation.id === currentConversationId;
                 return (
                   <SidebarMenuItem key={conversation.id}>
-                    <SidebarMenuButton
-                      onClick={() => onSelectConversation(conversation.id)}
-                      isActive={isActive}
-                      className="cursor-pointer"
-                      tooltip={isCollapsed ? conversation.title : undefined}
-                    >
-                      <MessageSquare className="h-4 w-4 flex-shrink-0" />
+                    <div className="group flex items-center gap-1 w-full">
+                      <SidebarMenuButton
+                        onClick={() => onSelectConversation(conversation.id)}
+                        isActive={isActive}
+                        className="cursor-pointer flex-1"
+                        tooltip={isCollapsed ? conversation.title : undefined}
+                      >
+                        <MessageSquare className="h-4 w-4 flex-shrink-0" />
+                        {!isCollapsed && (
+                          <span className="truncate">{conversation.title}</span>
+                        )}
+                      </SidebarMenuButton>
                       {!isCollapsed && (
-                        <span className="truncate">{conversation.title}</span>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onDeleteConversation(conversation.id);
+                          }}
+                        >
+                          <Trash2 className="h-4 w-4 text-destructive" />
+                        </Button>
                       )}
-                    </SidebarMenuButton>
+                    </div>
                   </SidebarMenuItem>
                 );
               })}

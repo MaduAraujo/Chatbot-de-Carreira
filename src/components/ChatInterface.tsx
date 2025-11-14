@@ -183,6 +183,38 @@ export const ChatInterface = () => {
     setSelectedCareer(null);
   };
 
+  const deleteConversation = async (id: string) => {
+    if (!user) return;
+    
+    const { error } = await supabase
+      .from("conversations")
+      .delete()
+      .eq("id", id);
+
+    if (error) {
+      console.error("Error deleting conversation:", error);
+      toast({
+        title: "Erro",
+        description: "Não foi possível deletar a conversa.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Update local state
+    setConversations(prev => prev.filter(c => c.id !== id));
+    
+    // If deleting current conversation, create a new one
+    if (id === conversationId) {
+      createConversation();
+    }
+
+    toast({
+      title: "Conversa deletada",
+      description: "A conversa foi removida do histórico.",
+    });
+  };
+
   const saveMessage = async (role: string, content: string) => {
     if (!user || !conversationId) return;
 
@@ -417,6 +449,7 @@ export const ChatInterface = () => {
           currentConversationId={conversationId}
           onNewConversation={createConversation}
           onSelectConversation={loadConversation}
+          onDeleteConversation={deleteConversation}
         />
       )}
       <div className="flex h-screen flex-col bg-background flex-1">
