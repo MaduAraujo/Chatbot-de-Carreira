@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ChatMessage } from "./ChatMessage";
 import { CareerCard } from "./CareerCard";
+import { AppSidebar } from "./AppSidebar";
 import { Send, Sparkles, LogIn, LogOut } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
@@ -49,6 +50,7 @@ export const ChatInterface = () => {
   const [selectedCareer, setSelectedCareer] = useState<Career | null>(null);
   const [roadmap, setRoadmap] = useState<string>("");
   const [isGeneratingRoadmap, setIsGeneratingRoadmap] = useState(false);
+  const [conversations, setConversations] = useState<Array<{ id: string; title: string; updated_at: string }>>([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -70,8 +72,11 @@ export const ChatInterface = () => {
         
         if (session?.user) {
           setTimeout(() => {
-            createConversation();
+            loadConversations();
           }, 0);
+        } else {
+          setConversations([]);
+          setConversationId(null);
         }
       }
     );
@@ -82,15 +87,50 @@ export const ChatInterface = () => {
       setUser(session?.user ?? null);
       
       if (session?.user) {
-        createConversation();
+        loadConversations();
       }
     });
 
     return () => subscription.unsubscribe();
   }, []);
 
+  const loadConversations = async () => {
+    if (!user) return;
+    
+    const { data, error } = await supabase
+      .from("conversations")
+      .select("*")
+      .eq("user_id", user.id)
+      .order("updated_at", { ascending: false });
+
+    if (error) {
+      console.error("Error loading conversations:", error);
+      return;
+    }
+
+    setConversations(data || []);
+    
+    // If no current conversation, create a new one
+    if (!conversationId && data && data.length === 0) {
+      createConversation();
+    } else if (!conversationId && data && data.length > 0) {
+      // Load the most recent conversation
+      loadConversation(data[0].id);
+    }
+  };
+
   const createConversation = async () => {
-    if (!user || conversationId) return;
+    if (!user) return;
+    
+    // Reset state for new conversation
+    setMessages([{ id: "1", text: INITIAL_MESSAGE, isBot: true }]);
+    setInput("");
+    setQuestionCount(0);
+    setAnswers([]);
+    setCareers(null);
+    setPhase("interview");
+    setSelectedCareer(null);
+    setRoadmap("");
     
     const { data, error } = await supabase
       .from("conversations")
@@ -107,6 +147,40 @@ export const ChatInterface = () => {
     }
 
     setConversationId(data.id);
+    setConversations(prev => [data, ...prev]);
+  };
+
+  const loadConversation = async (id: string) => {
+    if (!user) return;
+    
+    setConversationId(id);
+    
+    // Load messages
+    const { data: messagesData, error: messagesError } = await supabase
+      .from("messages")
+      .select("*")
+      .eq("conversation_id", id)
+      .order("created_at", { ascending: true });
+
+    if (messagesError) {
+      console.error("Error loading messages:", messagesError);
+      return;
+    }
+
+    // Transform messages
+    const loadedMessages: Message[] = messagesData.map((msg) => ({
+      id: msg.id,
+      text: msg.content,
+      isBot: msg.role === "bot",
+    }));
+
+    setMessages(loadedMessages);
+    
+    // Reset other state
+    setInput("");
+    setCareers(null);
+    setPhase("roadmap"); // Assume finished conversations are in roadmap phase
+    setSelectedCareer(null);
   };
 
   const saveMessage = async (role: string, content: string) => {
@@ -128,6 +202,12 @@ export const ChatInterface = () => {
   const handleLogout = async () => {
     await supabase.auth.signOut();
     setConversationId(null);
+    setConversations([]);
+    setMessages([{ id: "1", text: INITIAL_MESSAGE, isBot: true }]);
+    setQuestionCount(0);
+    setAnswers([]);
+    setCareers(null);
+    setPhase("interview");
     toast({
       title: "Logout realizado",
       description: "Você saiu da sua conta.",
@@ -330,7 +410,16 @@ export const ChatInterface = () => {
   };
 
   return (
-    <div className="flex h-screen flex-col bg-background">
+    <div className="flex h-screen w-full">
+      {user && (
+        <AppSidebar
+          conversations={conversations}
+          currentConversationId={conversationId}
+          onNewConversation={createConversation}
+          onSelectConversation={loadConversation}
+        />
+      )}
+      <div className="flex h-screen flex-col bg-background flex-1">
       {/* Header */}
       <div className="border-b bg-card px-6 py-4 shadow-soft">
         <div className="mx-auto flex max-w-4xl items-center justify-between gap-3">
@@ -410,6 +499,7 @@ export const ChatInterface = () => {
           </div>
         </div>
       )}
+      </div>
     </div>
   );
 };
