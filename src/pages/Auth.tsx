@@ -80,11 +80,6 @@ const Auth = () => {
           <CardTitle className="text-2xl font-bold">
             {isLogin ? "Entrar" : "Criar conta"}
           </CardTitle>
-          <CardDescription>
-            {isLogin 
-              ? "Entre para acessar suas conversas salvas" 
-              : "Crie uma conta para salvar suas conversas e insights de carreira"}
-          </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
