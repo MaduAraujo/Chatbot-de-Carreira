@@ -231,6 +231,39 @@ export const ChatInterface = () => {
     }
   };
 
+  const updateConversationTitle = async (firstMessage: string) => {
+    if (!user || !conversationId) return;
+
+    // Generate a concise title (5-7 words) from the first message
+    const words = firstMessage.trim().split(/\s+/);
+    let title = words.slice(0, 7).join(" ");
+    
+    // Add ellipsis if truncated
+    if (words.length > 7) {
+      title += "...";
+    }
+
+    // Update conversation title
+    const { error } = await supabase
+      .from("conversations")
+      .update({ title })
+      .eq("id", conversationId);
+
+    if (error) {
+      console.error("Error updating conversation title:", error);
+      return;
+    }
+
+    // Update local state
+    setConversations(prev => 
+      prev.map(conv => 
+        conv.id === conversationId 
+          ? { ...conv, title } 
+          : conv
+      )
+    );
+  };
+
   const handleLogout = async () => {
     await supabase.auth.signOut();
     setConversationId(null);
@@ -282,6 +315,26 @@ export const ChatInterface = () => {
   const handleSendMessage = async () => {
     if (!input.trim() || isTyping) return;
 
+    // Check if user is logged in
+    if (!user) {
+      const loginPromptMessage: Message = {
+        id: Date.now().toString(),
+        text: "Olá! Parece que você iniciou uma nova conversa. Para garantir que este bate-papo e todos os seus insights valiosos de carreira fiquem salvos e acessíveis para você a qualquer momento, recomendo que faça login.",
+        isBot: true,
+      };
+      setMessages((prev) => [...prev, loginPromptMessage]);
+      
+      setTimeout(() => {
+        const loginOptionsMessage: Message = {
+          id: (Date.now() + 1).toString(),
+          text: "Escolha uma das opções abaixo:\n\n💡 **Fazer Login** - Se você já tem uma conta\n💡 **Criar uma Conta** - Para novos usuários\n\nClique no botão 'Entrar' no canto superior direito para continuar.",
+          isBot: true,
+        };
+        setMessages((prev) => [...prev, loginOptionsMessage]);
+      }, 500);
+      return;
+    }
+
     const userMessage: Message = {
       id: Date.now().toString(),
       text: input,
@@ -289,12 +342,18 @@ export const ChatInterface = () => {
     };
 
     setMessages((prev) => [...prev, userMessage]);
+    const currentInput = input;
     setInput("");
     setIsTyping(true);
 
     // Save user message if logged in
     if (user) {
-      await saveMessage("user", input);
+      await saveMessage("user", currentInput);
+      
+      // Update conversation title with first user message
+      if (questionCount === 0 && phase === "interview") {
+        await updateConversationTitle(currentInput);
+      }
     }
 
     // Simular delay de digitação
@@ -399,16 +458,31 @@ export const ChatInterface = () => {
       setRoadmap(data.roadmap);
       setPhase("roadmap");
       
-      const roadmapMessage: Message = {
+      // Career-specific guidance messages
+      const cvPortfolioMessage: Message = {
         id: (Date.now() + 1).toString(),
+        text: `📄 **Dicas de CV e Portfólio para ${career.title}:**\n\n**CV:**\n• Liste suas habilidades técnicas com nível de proficiência (ex: JavaScript - Avançado)\n• Inclua links diretos e bem visíveis para seu portfólio e GitHub\n• Destaque projetos relevantes com resultados mensuráveis\n\n**Portfólio:**\n• Seu portfólio deve demonstrar mais do que código - mostre suas habilidades de comunicação\n• Crie READMEs claros e bem documentados em cada projeto\n• Foque em 2-3 projetos de alta qualidade em vez de muitos projetos incompletos\n• Demonstre sua capacidade de resolver problemas reais`,
+        isBot: true,
+      };
+
+      const networkingMessage: Message = {
+        id: (Date.now() + 2).toString(),
+        text: `🤝 **Networking e Comunidades:**\n\n**Fóruns Globais:**\n• Stack Overflow - Para dúvidas técnicas e compartilhar conhecimento\n• Dev Community (dev.to) - Para artigos e discussões sobre desenvolvimento\n\n**Comunidades e Grupos:**\n• Busque servidores no Discord focados em suas tecnologias de interesse\n• Participe de grupos ativos no LinkedIn da área de ${career.title}\n• Explore comunidades brasileiras como TabNews e grupos no Telegram\n• Participe de meetups e eventos locais de tecnologia\n\n💡 **Dica:** Seja ativo nas comunidades - responda dúvidas, compartilhe seus aprendizados e conecte-se com outros profissionais!`,
+        isBot: true,
+      };
+      
+      const roadmapMessage: Message = {
+        id: (Date.now() + 3).toString(),
         text: data.roadmap + "\n\n✨ Seu plano está pronto!\n\nLembre-se: o mais importante é a constância, não a velocidade. Comece pela Semana 1 e vá no seu ritmo.\n\nTem alguma dúvida sobre o plano? Posso detalhar alguma parte específica?",
         isBot: true,
       };
       
-      setMessages((prev) => [...prev, roadmapMessage]);
+      setMessages((prev) => [...prev, cvPortfolioMessage, networkingMessage, roadmapMessage]);
       
-      // Save roadmap message if logged in
+      // Save all messages if logged in
       if (user) {
+        await saveMessage("bot", cvPortfolioMessage.text);
+        await saveMessage("bot", networkingMessage.text);
         await saveMessage("bot", roadmapMessage.text);
       }
 
