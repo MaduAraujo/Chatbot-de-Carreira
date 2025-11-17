@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { z } from "zod";
-import { Mail, Lock, AlertCircle, CheckCircle2 } from "lucide-react";
+import { Mail, Lock, AlertCircle, CheckCircle2, Eye, EyeOff } from "lucide-react";
 
 // Validation schemas
 const emailSchema = z.string().email("Email inválido");
@@ -23,6 +23,8 @@ const Auth = () => {
   const [passwordError, setPasswordError] = useState<string | null>(null);
   const [emailValid, setEmailValid] = useState(false);
   const [passwordValid, setPasswordValid] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [passwordStrength, setPasswordStrength] = useState<'weak' | 'medium' | 'strong' | null>(null);
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -53,10 +55,34 @@ const Auth = () => {
     }
   };
 
+  // Calculate password strength
+  const calculatePasswordStrength = (password: string): 'weak' | 'medium' | 'strong' | null => {
+    if (password.length === 0) return null;
+    
+    let strength = 0;
+    
+    // Length check
+    if (password.length >= 8) strength++;
+    if (password.length >= 12) strength++;
+    
+    // Character variety checks
+    if (/[a-z]/.test(password)) strength++;
+    if (/[A-Z]/.test(password)) strength++;
+    if (/[0-9]/.test(password)) strength++;
+    if (/[^a-zA-Z0-9]/.test(password)) strength++;
+    
+    if (strength <= 2) return 'weak';
+    if (strength <= 4) return 'medium';
+    return 'strong';
+  };
+
   // Real-time password validation
   const handlePasswordChange = (value: string) => {
     setPassword(value);
     const result = passwordSchema.safeParse(value);
+    const strength = calculatePasswordStrength(value);
+    setPasswordStrength(strength);
+    
     if (value.length === 0) {
       setPasswordError(null);
       setPasswordValid(false);
@@ -184,7 +210,7 @@ const Auth = () => {
 
   if (showForgotPassword) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background p-4">
+      <div className="Auth bg-background p-4">
           <Card className="shadow-lg w-full max-w-md">
             <CardHeader className="text-center space-y-2">
               <CardTitle className="text-2xl font-bold">
@@ -243,7 +269,7 @@ const Auth = () => {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background p-4">
+    <div className="Auth bg-background p-4">
       <Card className="shadow-lg w-full max-w-md">
           <CardHeader className="text-center space-y-2">
             <CardTitle className="text-2xl font-bold text-center">
@@ -285,12 +311,23 @@ const Auth = () => {
                   <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                   <Input
                     id="password"
-                    type="password"
+                    type={showPassword ? "text" : "password"}
                     placeholder="••••••••"
                     value={password}
                     onChange={(e) => handlePasswordChange(e.target.value)}
-                    className={`pl-10 ${passwordError ? 'border-destructive' : passwordValid ? 'border-green-500' : ''}`}
+                    className={`pl-10 pr-20 ${passwordError ? 'border-destructive' : passwordValid ? 'border-green-500' : ''}`}
                   />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-10 top-3 text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    {showPassword ? (
+                      <EyeOff className="h-4 w-4" />
+                    ) : (
+                      <Eye className="h-4 w-4" />
+                    )}
+                  </button>
                   {passwordValid && (
                     <CheckCircle2 className="absolute right-3 top-3 h-4 w-4 text-green-500" />
                   )}
@@ -298,6 +335,29 @@ const Auth = () => {
                     <AlertCircle className="absolute right-3 top-3 h-4 w-4 text-destructive" />
                   )}
                 </div>
+                {!isLogin && password.length > 0 && (
+                  <div className="space-y-1">
+                    <div className="flex gap-1">
+                      <div className={`h-1 flex-1 rounded transition-colors ${
+                        passwordStrength === 'weak' ? 'bg-destructive' : 
+                        passwordStrength === 'medium' ? 'bg-destructive' : 
+                        passwordStrength === 'strong' ? 'bg-destructive' : 'bg-muted'
+                      }`} />
+                      <div className={`h-1 flex-1 rounded transition-colors ${
+                        passwordStrength === 'medium' ? 'bg-yellow-500' : 
+                        passwordStrength === 'strong' ? 'bg-yellow-500' : 'bg-muted'
+                      }`} />
+                      <div className={`h-1 flex-1 rounded transition-colors ${
+                        passwordStrength === 'strong' ? 'bg-green-500' : 'bg-muted'
+                      }`} />
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      {passwordStrength === 'weak' && 'Senha fraca'}
+                      {passwordStrength === 'medium' && 'Senha média'}
+                      {passwordStrength === 'strong' && 'Senha forte'}
+                    </p>
+                  </div>
+                )}
                 {passwordError && (
                   <p className="text-sm text-destructive flex items-center gap-1">
                     <AlertCircle className="h-3 w-3" />
