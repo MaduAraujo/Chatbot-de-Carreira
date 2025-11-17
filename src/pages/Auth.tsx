@@ -249,7 +249,7 @@ const Auth = () => {
       <div className="w-full max-w-md mx-auto">
         <Card className="shadow-lg">
           <CardHeader className="text-center space-y-2">
-            <CardTitle className="text-2xl font-bold">
+            <CardTitle className="text-2xl font-bold text-center">
               {isLogin ? "Entrar" : "Criar conta"}
             </CardTitle>
           </CardHeader>
@@ -283,18 +283,7 @@ const Auth = () => {
               </div>
 
               <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <Label htmlFor="password">Senha</Label>
-                  {isLogin && (
-                    <button
-                      type="button"
-                      onClick={() => setShowForgotPassword(true)}
-                      className="text-xs text-primary hover:underline"
-                    >
-                      Esqueceu a senha?
-                    </button>
-                  )}
-                </div>
+                <Label htmlFor="password">Senha</Label>
                 <div className="relative">
                   <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                   <Input
@@ -317,6 +306,15 @@ const Auth = () => {
                     <AlertCircle className="h-3 w-3" />
                     {passwordError}
                   </p>
+                )}
+                {isLogin && (
+                  <button
+                    type="button"
+                    onClick={() => setShowForgotPassword(true)}
+                    className="text-xs text-primary hover:underline"
+                  >
+                    Esqueceu a senha?
+                  </button>
                 )}
               </div>
 
