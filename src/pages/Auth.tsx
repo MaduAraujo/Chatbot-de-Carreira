@@ -185,8 +185,7 @@ const Auth = () => {
   if (showForgotPassword) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background p-4">
-        <div className="w-full max-w-md mx-auto">
-          <Card className="shadow-lg">
+          <Card className="shadow-lg w-full max-w-md">
             <CardHeader className="text-center space-y-2">
               <CardTitle className="text-2xl font-bold">
                 Recuperar Senha
@@ -239,15 +238,13 @@ const Auth = () => {
               </Button>
             </CardContent>
           </Card>
-        </div>
       </div>
     );
   }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
-      <div className="w-full max-w-md mx-auto">
-        <Card className="shadow-lg">
+      <Card className="shadow-lg w-full max-w-md">
           <CardHeader className="text-center space-y-2">
             <CardTitle className="text-2xl font-bold text-center">
               {isLogin ? "Entrar" : "Criar conta"}
@@ -381,7 +378,6 @@ const Auth = () => {
             </form>
           </CardContent>
         </Card>
-      </div>
     </div>
   );
 };
